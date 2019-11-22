@@ -1,7 +1,8 @@
 image: Visual Studio 2017
 
 environment:
-  
+matrix:
+  - solution_path: Lazy\Lazy.sln  
  
 before_build:
   - nuget restore %solution_path%
