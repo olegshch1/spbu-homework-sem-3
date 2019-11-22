@@ -29,6 +29,7 @@ namespace Lazy
             {
                 result = supplier();
                 used = true;
+                supplier = null;
             }
             return result;
         }
