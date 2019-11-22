@@ -1,8 +1,7 @@
 image: Visual Studio 2017
 
 environment:
-
-matrix:
+ matrix:
   - solution_path: Lazy\Lazy.sln  
  
 before_build:
