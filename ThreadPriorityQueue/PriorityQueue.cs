@@ -79,6 +79,7 @@ namespace ThreadPriorityQueue
                 {
                     Monitor.PulseAll(locker);
                 }
+
                 return true;
             }
         }
@@ -97,6 +98,7 @@ namespace ThreadPriorityQueue
                 }
                 int result = head.Data;
                 head = head.Next;
+                Count--;
                 return result;
             }
         }
