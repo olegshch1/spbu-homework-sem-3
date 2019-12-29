@@ -11,7 +11,7 @@ namespace ThreadPriorityQueue.Tests
         [TestMethod()]
         public void SizeTest()
         {
-            Assert.IsTrue(queue.Count==0);
+            Assert.IsTrue(queue.Count == 0);
         }
 
         [TestMethod()]
@@ -65,6 +65,39 @@ namespace ThreadPriorityQueue.Tests
             thread3.Join();
 
             Assert.IsTrue(queue.Count > 0);
+        }
+        [TestMethod()]
+        public void Waiting()
+        {
+            var thread1 = new Thread(() =>
+            {
+                queue.Deque();
+            });
+            var thread2 = new Thread(() =>
+            {
+                queue.Deque();
+            });
+            var thread3 = new Thread(() =>
+            {
+                queue.Enqueue(333, 11);
+            });
+            var thread4 = new Thread(() =>
+            {
+                queue.Enqueue(333, 11);
+            });
+
+            thread1.Start();
+            Thread.Sleep(100);
+            thread2.Start();
+            Thread.Sleep(100);
+            thread3.Start();
+            Thread.Sleep(100);
+            thread4.Start();
+            thread1.Join();
+            thread2.Join();
+            thread3.Join();
+            thread4.Join();
+            Assert.AreEqual(0, queue.Count);
         }
     }
 }
