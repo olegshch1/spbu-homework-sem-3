@@ -1,0 +1,105 @@
+﻿using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace ConsoleApp1
+{
+    /// <summary>
+    /// Server class
+    /// </summary>
+    public class Server
+    {
+        private TcpListener listener;
+        private CancellationTokenSource token = new CancellationTokenSource();
+
+        public Server(int port)
+        {
+            listener = new TcpListener(IPAddress.Any, port);
+        }
+
+        /// <summary>
+        /// starting server
+        /// </summary>
+        public async Task Start()
+        {
+            listener.Start();
+            while (!token.IsCancellationRequested)
+            {
+                var client = await listener.AcceptTcpClientAsync();
+                await Task.Run(()=>Work(client));
+            }
+        }
+
+        /// <summary>
+        /// Stopping server
+        /// </summary>
+        public void Stop()
+        {
+            token.Cancel();
+        }
+
+        /// <summary>
+        /// Getting command and path
+        /// </summary>
+        /// <param name="message">pair of command and path in string format</param>
+        /// <returns></returns>
+        private (string, string) Parse(string message)
+        {
+            var pair = message.Split();
+            if (pair.Length < 2)
+            {
+                return (null, null);
+            }
+            return (pair[0], pair[1]);
+        }
+
+        /// <summary>
+        /// Making a list of file and directories in string format
+        /// </summary>
+        /// <param name="path">current path</param>
+        private string List(string path)
+        {
+            try
+            {
+                var dirInfo = new DirectoryInfo(path);
+                var files = dirInfo.GetFiles();
+                var dirNames = dirInfo.GetDirectories();
+                return files.Length + dirNames.Length + " " + string.Join(" ", files.Select(name => $"{name.Name} False")) + string.Join(" ", dirNames.Select(name => $"{name.Name} True"));
+            }
+            catch
+            {
+                return "-1";
+            }
+        }
+
+        /// <summary>
+        /// Main process
+        /// </summary>
+        /// <param name="client">current client</param>
+        private async Task Work(TcpClient client)
+        {
+            using(var stream = client.GetStream())
+            {
+                var writer = new StreamWriter(stream);
+                var reader = new StreamReader(stream);
+                var message = await reader.ReadLineAsync();
+                var (command, path) = Parse(message);
+                switch (command)
+                {
+                    case "1":
+                        await writer.WriteLineAsync(List(path));
+                        break;
+                    case "2":
+                        var data = File.OpenRead(path);
+                        await writer.WriteLineAsync(data.Length.ToString());
+                        data.CopyTo(writer.BaseStream);
+                        data.Close();
+                        break;
+                }
+            }
+        }
+    }
+}
