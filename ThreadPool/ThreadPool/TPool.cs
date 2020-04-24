@@ -12,9 +12,11 @@ namespace ThreadPool
     {
         public int ThreadNumber { get; }
         private BlockingCollection<Action> taskqueue = new BlockingCollection<Action>();
+
         public TPool(int numberthreads)
         {
             ThreadNumber = numberthreads;
+            StartThread();
         }
 
         private Action Add(Action task)
@@ -27,7 +29,33 @@ namespace ThreadPool
         {
             for(int i = 0; i < ThreadNumber; i++)
             {
-                new Thread(()=> { }).Start();
+                new Thread(()=> 
+                {
+                    while (true)
+                    {
+                        taskqueue.Take().Invoke();
+                    }
+                }).Start();
+            }
+        }
+
+        private class MyTask<TResult> : IMyTask<TResult>
+        {
+            private object locker = new object();
+            private Func<TResult> function;
+            public bool IsCompleted { get; set; }
+
+            public TResult Result { get; }
+
+            public MyTask(Func<TResult> task)
+            {
+                function = task;
+            }
+
+            public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult,TNewResult> func)
+            {
+                var task = new MyTask<TNewResult>(()=>func(Result));
+                return task;
             }
         }
 
