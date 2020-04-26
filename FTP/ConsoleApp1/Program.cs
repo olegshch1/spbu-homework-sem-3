@@ -11,7 +11,7 @@ namespace MyFTP
     {
         static void Main(string[] args)
         {
-            var path = "../../../ServerTests/TestDir";
+            var path = "../../../ServerTests";
             var dirInfo = new DirectoryInfo(path);
             var files = dirInfo.GetFiles();
             var dirNames = dirInfo.GetDirectories();
