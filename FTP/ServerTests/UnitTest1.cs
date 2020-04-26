@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ConsoleApp1;
+using System.Threading.Tasks;
+
 namespace ServerTests
 {
     [TestClass]
@@ -8,6 +10,7 @@ namespace ServerTests
     {
         private Server server;
         private Client client;
+        private string path="../../../../ServerTests/TestDir";
 
         [TestInitialize]
         public void Initialize()
@@ -18,8 +21,12 @@ namespace ServerTests
             client.Connect();
         }
         [TestMethod]
-        public void TestMethod1()
+        public async Task GetCommand()
         {
+            var (size, data) = await client.Get(path + "/example.txt");
+            Assert.AreEqual(24, data);
+            server.Stop();
+            //client.Stop();
         }
     }
 }

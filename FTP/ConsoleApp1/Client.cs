@@ -55,7 +55,7 @@ namespace ConsoleApp1
         /// <summary>
         /// Closing client
         /// </summary>
-        public void Close()
+        public void Stop()
         {
             client.Close();
         }
