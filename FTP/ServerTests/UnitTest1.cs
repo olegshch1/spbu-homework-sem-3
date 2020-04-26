@@ -11,7 +11,7 @@ namespace ServerTests
         
         private Server server;
         private Client client;
-        private string path="../../../../ServerTests/TestDir";
+        private string path= "../../../ServerTests/TestDir";
 
         [TestInitialize]
         public void Initialize()
@@ -26,7 +26,7 @@ namespace ServerTests
         public async Task GetCommand()
         {
             var (size, data) = await client.Get(path + "/example.txt");
-            Assert.AreEqual(24, data);
+            Assert.AreEqual("0", BitConverter.ToString(data));
             server.Stop();
             client.Dispose();
         }
@@ -35,7 +35,9 @@ namespace ServerTests
         public async Task ListCommandTestAsync()
         {
             var answer = await client.List(path);
-            Assert.AreEqual("2 example.txt False ", answer);
+            Assert.AreEqual("1", answer.Item1);
+            Assert.AreEqual("example.txt", answer.Item2[0].Item1);
+            Assert.AreEqual(false, answer.Item2[0].Item2);
             server.Stop();
             client.Dispose();
         }

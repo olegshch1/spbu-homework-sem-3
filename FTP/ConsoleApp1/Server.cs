@@ -69,9 +69,11 @@ namespace MyFTP
                 var dirInfo = new DirectoryInfo(path);
                 var files = dirInfo.GetFiles();
                 var dirNames = dirInfo.GetDirectories();
-                return files.Length + dirNames.Length + " " + string.Join(" ", files.Select(name => $"{name.Name} False")) + string.Join(" ", dirNames.Select(name => $"{name.Name} True"));
+                return files.Length + dirNames.Length + " " 
+                    + string.Join("", files.Select(name => $"{name.Name} False ")) 
+                    + string.Join("", dirNames.Select(name => $"{name.Name} True "));
             }
-            catch (Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
+            catch //(Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
             {
                 return "-1";
             }
@@ -85,7 +87,7 @@ namespace MyFTP
         {
             using(var stream = client.GetStream())
             {
-                var writer = new StreamWriter(stream);
+                var writer = new StreamWriter(stream) { AutoFlush = true };
                 var reader = new StreamReader(stream);
                 var message = await reader.ReadLineAsync();
                 var (command, path) = Parse(message);

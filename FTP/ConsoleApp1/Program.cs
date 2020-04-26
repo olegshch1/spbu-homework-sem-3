@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,11 +11,14 @@ namespace MyFTP
     {
         static void Main(string[] args)
         {
-            //Server server = new Server(1234);
-            //Client client = new Client("localhost", 1234);
-            //server.Start();
-            //client.Connect();
-            //client.Get("../ServerTests/TestDir/example.txt");            
+            var path = "../../../ServerTests/TestDir";
+            var dirInfo = new DirectoryInfo(path);
+            var files = dirInfo.GetFiles();
+            var dirNames = dirInfo.GetDirectories();
+            Console.Write( files.Length + dirNames.Length + "\n"
+                + string.Join("", files.Select(name => $"{name.Name} False \n"))
+                + string.Join("", dirNames.Select(name => $"{name.Name} True \n")));
+            Console.ReadKey();
         }
     }
 }
