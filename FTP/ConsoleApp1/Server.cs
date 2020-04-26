@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace MyFTP
 {
     /// <summary>
     /// Server class
@@ -32,6 +32,7 @@ namespace ConsoleApp1
                 var client = await listener.AcceptTcpClientAsync();
                 await Task.Run(()=>Work(client));
             }
+            listener.Stop();
         }
 
         /// <summary>

@@ -4,12 +4,12 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace ConsoleApp1
+namespace MyFTP
 {
     /// <summary>
     /// Client class
     /// </summary>
-    public class Client
+    public class Client : IDisposable
     {
         private TcpClient client;
         private StreamWriter writer;
@@ -27,12 +27,13 @@ namespace ConsoleApp1
         /// <summary>
         /// Connecting
         /// </summary>
-        public async Task Connect()
+        public void Connect()
         {
             client.Connect(host, port);
             var stream = client.GetStream();
-            writer = new StreamWriter(stream);
+            writer = new StreamWriter(stream) { AutoFlush = true };
             reader = new StreamReader(stream);
+            
         }
 
         /// <summary>
@@ -43,6 +44,7 @@ namespace ConsoleApp1
         {
             await writer.WriteLineAsync(message);
         }
+        
 
         /// <summary>
         /// Getting message
@@ -55,9 +57,10 @@ namespace ConsoleApp1
         /// <summary>
         /// Closing client
         /// </summary>
-        public void Stop()
+        public void Dispose()
         {
             client.Close();
+            client.Dispose();
         }
 
         /// <summary>

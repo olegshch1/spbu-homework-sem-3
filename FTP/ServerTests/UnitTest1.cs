@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ConsoleApp1;
+using MyFTP;
 using System.Threading.Tasks;
 
 namespace ServerTests
@@ -8,6 +8,7 @@ namespace ServerTests
     [TestClass]
     public class UnitTest1
     {
+        
         private Server server;
         private Client client;
         private string path="../../../../ServerTests/TestDir";
@@ -15,6 +16,7 @@ namespace ServerTests
         [TestInitialize]
         public void Initialize()
         {
+            
             server = new Server(1234);
             server.Start();
             client = new Client("localhost", 1234);
@@ -26,7 +28,17 @@ namespace ServerTests
             var (size, data) = await client.Get(path + "/example.txt");
             Assert.AreEqual(24, data);
             server.Stop();
-            //client.Stop();
+            client.Dispose();
         }
+
+        [TestMethod]
+        public async Task ListCommandTestAsync()
+        {
+            var answer = await client.List(path);
+            Assert.AreEqual("2 example.txt False ", answer);
+            server.Stop();
+            client.Dispose();
+        }
+
     }
 }
