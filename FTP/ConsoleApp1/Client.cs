@@ -73,7 +73,7 @@ namespace ConsoleApp1
                 return ("-1", null);
             }
             var data = new byte[size];
-            await reader.BaseStream.ReadAsync(data,0,size);
+            await reader.BaseStream.ReadAsync(data, 0, size);
             return (size.ToString(), data);
         }
 
@@ -85,13 +85,13 @@ namespace ConsoleApp1
         {
             await Write("1 " + path);
             var message = await Read();
-            if(message == "-1")
+            if (message == "-1")
             {
                 return ("-1", null);
             }
             var split = message.Split();
             var list = new List<(string, bool)>();
-            for(int i=0; i < split.Length-1; i+=2)
+            for (int i = 0; i < split.Length - 1; i += 2)
             {
                 list.Add((split[i], Convert.ToBoolean(split[i+1])));
             }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -69,7 +70,7 @@ namespace ConsoleApp1
                 var dirNames = dirInfo.GetDirectories();
                 return files.Length + dirNames.Length + " " + string.Join(" ", files.Select(name => $"{name.Name} False")) + string.Join(" ", dirNames.Select(name => $"{name.Name} True"));
             }
-            catch
+            catch (Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
             {
                 return "-1";
             }
@@ -93,10 +94,18 @@ namespace ConsoleApp1
                         await writer.WriteLineAsync(List(path));
                         break;
                     case "2":
-                        var data = File.OpenRead(path);
-                        await writer.WriteLineAsync(data.Length.ToString());
-                        data.CopyTo(writer.BaseStream);
-                        data.Close();
+                        try
+                        {
+                            var data = File.OpenRead(path);
+                            await writer.WriteLineAsync(data.Length.ToString());
+                            data.CopyTo(writer.BaseStream);
+                            data.Close();
+                            break;
+                        }
+                        catch (Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
+                        {
+                            await writer.WriteLineAsync("-1");
+                        }
                         break;
                 }
             }
