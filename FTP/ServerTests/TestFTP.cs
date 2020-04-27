@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ServerTests
 {
     [TestClass]
-    public class UnitTest1
+    public class TestFTP
     {
         
         private Server server;
