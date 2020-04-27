@@ -32,36 +32,24 @@ namespace MyFTP
             client.Connect(host, port);
             var stream = client.GetStream();
             writer = new StreamWriter(stream) { AutoFlush = true };
-            reader = new StreamReader(stream);
-            
+            reader = new StreamReader(stream);           
         }
 
         /// <summary>
         /// Sending message
         /// </summary>
         /// <param name="message">message text</param>
-        private async Task Write(string message)
-        {
-            await writer.WriteLineAsync(message);
-        }
+        private async Task Write(string message) => await writer.WriteLineAsync(message);
         
-
         /// <summary>
         /// Getting message
         /// </summary>
-        private async Task<string> Read()
-        {
-            return await reader.ReadLineAsync();
-        }
+        private async Task<string> Read() => await reader.ReadLineAsync();
 
         /// <summary>
         /// Closing client
         /// </summary>
-        public void Dispose()
-        {
-            client.Close();
-            client.Dispose();
-        }
+        public void Dispose() => client.Dispose();
 
         /// <summary>
         /// Get command
@@ -96,7 +84,7 @@ namespace MyFTP
             var list = new List<(string, bool)>();
             for (int i = 1; i < split.Length - 1; i += 2)
             {
-                list.Add((split[i], Convert.ToBoolean(split[i+1])));
+                list.Add((split[i], Convert.ToBoolean(split[i + 1])));
             }
             return (split[0], list);
         }

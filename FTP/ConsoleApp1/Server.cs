@@ -30,7 +30,7 @@ namespace MyFTP
             while (!token.IsCancellationRequested)
             {
                 var client = await listener.AcceptTcpClientAsync();
-                await Task.Run(()=>Work(client));
+                await Task.Run(() => Work(client));
             }
             listener.Stop();
         }
@@ -47,7 +47,6 @@ namespace MyFTP
         /// Getting command and path
         /// </summary>
         /// <param name="message">pair of command and path in string format</param>
-        /// <returns></returns>
         private (string, string) Parse(string message)
         {
             var pair = message.Split();
