@@ -30,7 +30,7 @@ namespace MyFTP
             while (!token.IsCancellationRequested)
             {
                 var client = await listener.AcceptTcpClientAsync();
-                await Task.Run(() => Work(client));
+                Task.Run(() => Work(client));
             }
             listener.Stop();
         }
