@@ -56,7 +56,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleApp1\FTP.csproj">
+    <ProjectReference Include="..\FTP\FTP.csproj">
       <Project>{0232fabd-28b0-4a9e-8e10-039b1b1d1fb0}</Project>
       <Name>FTP</Name>
     </ProjectReference>
