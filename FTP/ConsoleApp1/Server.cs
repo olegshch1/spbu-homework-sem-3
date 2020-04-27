@@ -72,7 +72,7 @@ namespace MyFTP
                     + string.Join("", files.Select(name => $"{name.Name} False ")) 
                     + string.Join("", dirNames.Select(name => $"{name.Name} True "));
             }
-            catch //(Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
+            catch (Exception exception) when (exception is IOException)
             {
                 return "-1";
             }
@@ -84,7 +84,7 @@ namespace MyFTP
         /// <param name="client">current client</param>
         private async Task Work(TcpClient client)
         {
-            using(var stream = client.GetStream())
+            using (var stream = client.GetStream())
             {
                 var writer = new StreamWriter(stream) { AutoFlush = true };
                 var reader = new StreamReader(stream);
@@ -104,7 +104,7 @@ namespace MyFTP
                             data.Close();
                             break;
                         }
-                        catch (Exception exception) when (exception is IOException || exception is ArgumentException || exception is FileNotFoundException)
+                        catch (Exception exception) when (exception is IOException)
                         {
                             await writer.WriteLineAsync("-1");
                         }

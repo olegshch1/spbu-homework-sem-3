@@ -22,6 +22,7 @@ namespace ServerTests
             client = new Client("localhost", 1234);
             client.Connect();
         }
+
         [TestMethod]
         public async Task GetCommand()
         {
@@ -54,7 +55,7 @@ namespace ServerTests
         [TestMethod]
         public async Task FailureListCommandTestAsync()
         {
-            var answer = await client.List(path+"abc.txt");
+            var answer = await client.List(path + "abc.txt");
             Assert.AreEqual("-1", answer.Item1);
             client.Dispose();
         }
