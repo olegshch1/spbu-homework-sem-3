@@ -61,20 +61,20 @@ namespace MyFTP
         /// Making a list of file and directories in string format
         /// </summary>
         /// <param name="path">current path</param>
-        private string List(string path)
+        private (int, string) List(string path)
         {
             try
             {
                 var dirInfo = new DirectoryInfo(path);
                 var files = dirInfo.GetFiles();
                 var dirNames = dirInfo.GetDirectories();
-                return files.Length + dirNames.Length + " " 
-                    + string.Join("", files.Select(name => $"{name.Name} False ")) 
-                    + string.Join("", dirNames.Select(name => $"{name.Name} True "));
+                return (files.Length + dirNames.Length, 
+                    string.Join("", files.Select(name => $"{name.Name} False ")) 
+                    + string.Join("", dirNames.Select(name => $"{name.Name} True ")));
             }
             catch (Exception exception) when (exception is IOException)
             {
-                return "-1";
+                return (-1, null);
             }
         }
 
@@ -93,20 +93,20 @@ namespace MyFTP
                 switch (command)
                 {
                     case "1":
-                        await writer.WriteLineAsync(List(path));
+                        await writer.WriteLineAsync($"{ List(path).Item1} {List(path).Item2}");
                         break;
                     case "2":
                         try
                         {
                             var data = File.OpenRead(path);
-                            await writer.WriteLineAsync(data.Length.ToString());
+                            await writer.WriteLineAsync($"{data.Length}");
                             data.CopyTo(writer.BaseStream);
                             data.Close();
                             break;
                         }
                         catch (Exception exception) when (exception is IOException)
                         {
-                            await writer.WriteLineAsync("-1");
+                            await writer.WriteLineAsync($"{-1}");
                         }
                         break;
                 }

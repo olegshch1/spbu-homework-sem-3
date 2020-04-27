@@ -36,7 +36,7 @@ namespace ServerTests
         public async Task FailureGetCommand()
         {
             var (size, data) = await client.Get(path + "/example.dll");
-            Assert.AreEqual("-1", size);
+            Assert.AreEqual(-1, size);
             server.Stop();
             client.Dispose();
         }
@@ -45,7 +45,7 @@ namespace ServerTests
         public async Task ListCommandTestAsync()
         {
             var answer = await client.List(path);
-            Assert.AreEqual("7", answer.Item1);
+            Assert.AreEqual(7, answer.Item1);
             Assert.AreEqual("TestDir", answer.Item2[6].Item1);
             Assert.AreEqual(true, answer.Item2[6].Item2);
             server.Stop();
@@ -56,7 +56,7 @@ namespace ServerTests
         public async Task FailureListCommandTestAsync()
         {
             var answer = await client.List(path + "abc.txt");
-            Assert.AreEqual("-1", answer.Item1);
+            Assert.AreEqual(-1, answer.Item1);
             client.Dispose();
         }
 

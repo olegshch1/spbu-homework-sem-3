@@ -55,30 +55,30 @@ namespace MyFTP
         /// Get command
         /// </summary>
         /// <param name="path">file path</param>
-        public async Task<(string, byte[])> Get(string path)
+        public async Task<(int, byte[])> Get(string path)
         {
             await Write("2 " + path);
             int size = int.Parse(await Read());
             if (size == -1)
             {
-                return ("-1", null);
+                return (-1, null);
             }
             var data = new byte[size];
             await reader.BaseStream.ReadAsync(data, 0, size);
-            return (size.ToString(), data);
+            return (size, data);
         }
 
         /// <summary>
         /// Listing command
         /// </summary>
         /// <param name="path">current path</param>
-        public async Task<(string, List<(string, bool)>)> List(string path)
+        public async Task<(int, List<(string, bool)>)> List(string path)
         {
             await Write("1 " + path);
             var message = await Read();
             if (message == "-1")
             {
-                return ("-1", null);
+                return (-1, null);
             }
             var split = message.Split();
             var list = new List<(string, bool)>();
@@ -86,7 +86,7 @@ namespace MyFTP
             {
                 list.Add((split[i], Convert.ToBoolean(split[i + 1])));
             }
-            return (split[0], list);
+            return (Convert.ToInt32(split[0]), list);
         }
     }
 }
