@@ -15,7 +15,8 @@ namespace ThreadPool
     {
         public int ThreadNumber { get; }
         private BlockingCollection<Action> taskqueue = new BlockingCollection<Action>();
-
+        private CancellationTokenSource token = new CancellationTokenSource();
+        
         public TPool(int numberthreads)
         {
             ThreadNumber = numberthreads;
@@ -23,13 +24,26 @@ namespace ThreadPool
         }
 
         /// <summary>
+        /// Stopping threadpool work
+        /// </summary>
+        public void Shutdown()
+        {
+            token.Cancel();
+            taskqueue.CompleteAdding();
+        }
+
+        /// <summary>
         /// Adding task to ThreadPool queue
         /// </summary>
         public IMyTask<TResult> Add<TResult>(Func<TResult> func)
         {
-            var task = new MyTask<TResult>(func, this);
-            taskqueue.Add(task.Calculate());
-            return task;
+            if (!token.Token.IsCancellationRequested)
+            {
+                var task = new MyTask<TResult>(func, this);
+                taskqueue.Add(task.Calculate);
+                return task;
+            }
+            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -57,16 +71,8 @@ namespace ThreadPool
             private TPool pool;
             private object locker = new object();
             private Func<TResult> function;
-            private TResult result;
             public bool IsCompleted { get; set; }
-
-            public TResult Result
-            {
-                get
-                {
-                    return result;
-                }
-            }
+            public TResult Result { get; private set; }
 
             public MyTask(Func<TResult> task, TPool threadpool)
             {
@@ -77,15 +83,18 @@ namespace ThreadPool
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult,TNewResult> func)
             {
                 var task = new MyTask<TNewResult>(() => func(Result), pool);
+                if (IsCompleted)
+                {
+                    return pool.Add(() => func(Result));
+                }
                 return task;
             }
 
-            public Action Calculate()
+            public void Calculate()
             {
-                result = function();
+                Result = function();
                 IsCompleted = true;
                 function = null;
-                return result;
             }
         }
 
