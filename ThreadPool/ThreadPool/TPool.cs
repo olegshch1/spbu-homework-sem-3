@@ -14,12 +14,12 @@ namespace ThreadPool
     public class TPool
     {
         public int ThreadNumber { get; }
-        private BlockingCollection<Action> taskqueue = new BlockingCollection<Action>();
+        private BlockingCollection<Action> taskQueue = new BlockingCollection<Action>();
         private CancellationTokenSource token = new CancellationTokenSource();
         
-        public TPool(int numberthreads)
+        public TPool(int numberThreads)
         {
-            ThreadNumber = numberthreads;
+            ThreadNumber = numberThreads;
             StartThread();
         }
 
@@ -29,7 +29,7 @@ namespace ThreadPool
         public void Shutdown()
         {
             token.Cancel();
-            taskqueue.CompleteAdding();
+            taskQueue.CompleteAdding();
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace ThreadPool
             if (!token.Token.IsCancellationRequested)
             {
                 var task = new MyTask<TResult>(func, this);
-                taskqueue.Add(task.Calculate);
+                taskQueue.Add(task.Calculate);
                 return task;
             }
             throw new InvalidOperationException();
@@ -51,13 +51,13 @@ namespace ThreadPool
         /// </summary>
         private void StartThread()
         {
-            for(int i = 0; i < ThreadNumber; i++)
+            for (int i = 0; i < ThreadNumber; i++)
             {
                 new Thread(()=> 
                 {
                     while (true)
                     {
-                        taskqueue.Take().Invoke();
+                        taskQueue.Take().Invoke();
                     }
                 }).Start();
             }
@@ -93,8 +93,11 @@ namespace ThreadPool
             public void Calculate()
             {
                 Result = function();
-                IsCompleted = true;
-                function = null;
+                lock (locker)
+                {
+                    IsCompleted = true;
+                    function = null;
+                }
             }
         }
 
