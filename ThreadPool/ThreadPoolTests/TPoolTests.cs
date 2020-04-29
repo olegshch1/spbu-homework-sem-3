@@ -60,6 +60,7 @@ namespace ThreadPool.Tests
             Assert.IsTrue(task1.IsCompleted);
             Assert.IsTrue(task2.IsCompleted);
             Assert.IsTrue(task3.IsCompleted);
+            Assert.IsTrue(pool.ClosedPool);
         }
 
         [TestMethod]
@@ -77,7 +78,6 @@ namespace ThreadPool.Tests
             }
             pool.Shutdown();
             Assert.AreEqual(4, list[4].Result);
-            Assert.AreEqual(true, pool.ClosedPool);
         }
 
         [TestMethod]

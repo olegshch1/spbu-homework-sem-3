@@ -19,16 +19,16 @@ namespace ThreadPool
         public TPool(int numberThreads)
         {
             ThreadNumber = numberThreads;
-            StartThread();
+            StartThread(numberThreads);
         }
 
         /// <summary>
         /// Stopping threadpool work
         /// </summary>
         public void Shutdown()
-        {           
-            token.Cancel();            
-            taskQueue?.CompleteAdding();
+        {            
+            token.Cancel();
+            taskQueue?.CompleteAdding();            
             taskQueue = null;            
         }
 
@@ -61,17 +61,18 @@ namespace ThreadPool
         /// <summary>
         /// Starting with "ThreadNumber" number of threads
         /// </summary>
-        private void StartThread()
+        private void StartThread(int number)
         {
-            for (int i = 0; i < ThreadNumber; i++)
+            for (int i = 0; i < number; i++)
             {
                 new Thread(()=> 
                 {
                     while (true)
-                    {
+                    {                       
                         if (token.IsCancellationRequested)
                         {
                             Interlocked.Increment(ref finishedThreads);
+                            break;
                         }
                         taskQueue?.Take().Invoke();
                     }
