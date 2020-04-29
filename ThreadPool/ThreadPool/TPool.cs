@@ -13,7 +13,7 @@ namespace ThreadPool
         public int ThreadNumber { get; }
         private BlockingCollection<Action> taskQueue = new BlockingCollection<Action>();
         private CancellationTokenSource token = new CancellationTokenSource();
-        private int FinishedThreads = 0;
+        private int finishedThreads = 0;
         private object locker = new object();
 
         public TPool(int numberThreads)
@@ -30,14 +30,15 @@ namespace ThreadPool
             lock (locker)
             {
                 token.Cancel();
-                taskQueue.CompleteAdding();
+                taskQueue?.CompleteAdding();
+                taskQueue = null;
             }
         }
 
         /// <summary>
         /// true if all threads have been closed
         /// </summary>
-        public bool ClosedPoll => ThreadNumber == FinishedThreads;
+        public bool ClosedPoll => ThreadNumber == finishedThreads;
 
         /// <summary>
         /// Adding task to ThreadPool queue
@@ -56,7 +57,7 @@ namespace ThreadPool
                     taskQueue.Add(task.Calculate);
                     return task;
                 }
-                catch
+                catch (Exception exception) when (exception is InvalidOperationException)
                 {
                     throw new InvalidOperationException();
                 }
@@ -76,9 +77,9 @@ namespace ThreadPool
                     {
                         if (token.IsCancellationRequested)
                         {
-                            Interlocked.Increment(ref FinishedThreads);
+                            Interlocked.Increment(ref finishedThreads);
                         }
-                        taskQueue.Take().Invoke();
+                        taskQueue?.Take().Invoke();
                     }
                 }).Start();
             }
@@ -108,7 +109,7 @@ namespace ThreadPool
                 get
                 {
                     flag.WaitOne();
-                    if(exception == null)
+                    if (exception == null)
                     {
                         return result;
                     }

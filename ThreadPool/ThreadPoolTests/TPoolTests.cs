@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace ThreadPool.Tests
 {
@@ -61,6 +62,15 @@ namespace ThreadPool.Tests
             Assert.IsTrue(task1.IsCompleted);
             Assert.IsTrue(task2.IsCompleted);
             Assert.IsTrue(task3.IsCompleted);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void TaskAfterShutdownTest()
+        {
+            var pool = new TPool(1);
+            pool.Shutdown();
+            var task1 = pool.Add(() => 2 + 3);           
         }
     }
 }
