@@ -29,6 +29,7 @@ namespace ThreadPool.Tests
         public void CompletingTask()
         {
             var task = pool.Add(() => 2 * 2);
+            pool.Shutdown();
             Assert.AreEqual(4, task.Result);
             Assert.IsTrue(task.IsCompleted);
 
