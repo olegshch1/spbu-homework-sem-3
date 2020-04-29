@@ -63,13 +63,13 @@ namespace ThreadPool
         /// </summary>
         private void StartThread(int number)
         {
-            for (int i = 0; i < number; i++)
+            for (int i = 0; i < number; ++i)
             {
                 new Thread(()=> 
                 {
                     while (true)
                     {                       
-                        if (token.IsCancellationRequested)
+                        if (token.Token.IsCancellationRequested)
                         {
                             Interlocked.Increment(ref finishedThreads);
                             break;
@@ -82,7 +82,7 @@ namespace ThreadPool
 
         private Action ActionAdd(Action action)
         {
-            taskQueue?.Add(action, token.Token);
+            taskQueue.Add(action, token.Token);
             return action;
         }
 
@@ -112,7 +112,6 @@ namespace ThreadPool
                 }
             }
             
-
             public MyTask(Func<TResult> task, TPool threadpool)
             {
                 function = task;
@@ -154,7 +153,7 @@ namespace ThreadPool
                         flag.Set();
                         while (local.Count != 0)
                         {
-                            pool?.ActionAdd(local.Dequeue());
+                            pool.ActionAdd(local.Dequeue());
                         }
                     }
                 }

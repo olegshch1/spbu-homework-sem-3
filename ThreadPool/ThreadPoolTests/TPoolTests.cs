@@ -15,6 +15,8 @@ namespace ThreadPool.Tests
         {
             pool = new TPool(10);
             Assert.AreEqual(10, pool.ThreadNumber);
+            pool.Shutdown();
+            Assert.IsTrue(pool.ClosedPool);
         }
 
         [TestMethod]
@@ -22,8 +24,11 @@ namespace ThreadPool.Tests
         {
             pool = new TPool(1);
             var task = pool.Add(() => 2 * 2);
+            pool.Shutdown();
             Assert.AreEqual(4, task.Result);
             Assert.IsTrue(task.IsCompleted);
+            Assert.IsTrue(pool.ClosedPool);
+
 
         }
 
@@ -78,6 +83,21 @@ namespace ThreadPool.Tests
             }
             pool.Shutdown();
             Assert.AreEqual(4, list[4].Result);
+        }
+
+        [TestMethod]
+        public void UnexistingResultTest()
+        {
+            pool = new TPool(1);
+            var list = new List<IMyTask<int>>();            
+            list.Add(pool.Add(() =>
+            {
+                Thread.Sleep(1000);
+                return 4;
+            }));
+            
+            pool.Shutdown();
+            Assert.AreEqual(4, list[0].Result);
         }
 
         [TestMethod]
