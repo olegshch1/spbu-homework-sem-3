@@ -87,7 +87,7 @@ namespace ThreadPool
 
         private Action ActionAdd(Action action)
         {
-            taskQueue.Add(action);
+            taskQueue?.Add(action);
             return action;
         }
 
