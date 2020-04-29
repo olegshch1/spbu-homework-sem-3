@@ -30,8 +30,7 @@ namespace ThreadPool
             lock (locker)
             {
                 token.Cancel();
-                taskQueue?.CompleteAdding();
-                taskQueue = null;
+                taskQueue.CompleteAdding();
             }
         }
 
@@ -79,7 +78,7 @@ namespace ThreadPool
                         {
                             Interlocked.Increment(ref FinishedThreads);
                         }
-                        taskQueue?.Take().Invoke();
+                        taskQueue.Take().Invoke();
                     }
                 }).Start();
             }
@@ -97,11 +96,26 @@ namespace ThreadPool
         private class MyTask<TResult> : IMyTask<TResult>
         {
             private TPool pool;
+            private ManualResetEvent flag = new ManualResetEvent(false);
             private object locker = new object();
             private Func<TResult> function;
             private Queue<Action> local;
+            private TResult result;
+            private AggregateException exception;
             public bool IsCompleted { get; set; }
-            public TResult Result { get; private set; }
+            public TResult Result
+            {
+                get
+                {
+                    flag.WaitOne();
+                    if(exception == null)
+                    {
+                        return result;
+                    }
+                    throw exception;
+                }
+            }
+            
 
             public MyTask(Func<TResult> task, TPool threadpool)
             {
@@ -127,14 +141,25 @@ namespace ThreadPool
 
             public void Calculate()
             {
-                Result = function();
-                lock (locker)
+                try
                 {
-                    IsCompleted = true;
-                    function = null;
-                    while (local.Count != 0)
+                    result = function();
+                }
+                catch (Exception calcexception)
+                {
+                    exception = new AggregateException(calcexception);
+                }
+                finally
+                {
+                    lock (locker)
                     {
-                        pool.ActionAdd(local.Dequeue());
+                        IsCompleted = true;
+                        function = null;
+                        flag.Set();
+                        while (local.Count != 0)
+                        {
+                            pool.ActionAdd(local.Dequeue());
+                        }
                     }
                 }
             }
