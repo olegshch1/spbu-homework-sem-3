@@ -26,42 +26,36 @@ namespace ThreadPool
         /// Stopping threadpool work
         /// </summary>
         public void Shutdown()
-        {
-            lock (locker)
-            {
-                token.Cancel();
-                taskQueue?.CompleteAdding();
-                taskQueue = null;
-            }
+        {           
+            token.Cancel();            
+            taskQueue?.CompleteAdding();
+            taskQueue = null;            
         }
 
         /// <summary>
         /// true if all threads have been closed
         /// </summary>
-        public bool ClosedPoll => ThreadNumber == finishedThreads;
+        public bool ClosedPool => ThreadNumber == finishedThreads;
 
         /// <summary>
         /// Adding task to ThreadPool queue
         /// </summary>
         public IMyTask<TResult> Add<TResult>(Func<TResult> func)
-        {
-            lock (locker)
+        {            
+            if (token.Token.IsCancellationRequested)
             {
-                if (token.Token.IsCancellationRequested)
-                {
-                    throw new InvalidOperationException();
-                }
-                try
-                {
-                    var task = new MyTask<TResult>(func, this);
-                    taskQueue.Add(task.Calculate);
-                    return task;
-                }
-                catch (Exception exception) when (exception is InvalidOperationException)
-                {
-                    throw new InvalidOperationException();
-                }
+                throw new InvalidOperationException();
             }
+            var task = new MyTask<TResult>(func, this);
+            try
+            {                    
+                taskQueue.Add(task.Calculate, token.Token);                    
+            }
+            catch (Exception exception) when (exception is InvalidOperationException)
+            {
+                throw new InvalidOperationException();
+            }
+            return task;           
         }
 
         /// <summary>
@@ -87,7 +81,7 @@ namespace ThreadPool
 
         private Action ActionAdd(Action action)
         {
-            taskQueue?.Add(action);
+            taskQueue?.Add(action, token.Token);
             return action;
         }
 
@@ -159,7 +153,7 @@ namespace ThreadPool
                         flag.Set();
                         while (local.Count != 0)
                         {
-                            pool.ActionAdd(local.Dequeue());
+                            pool?.ActionAdd(local.Dequeue());
                         }
                     }
                 }

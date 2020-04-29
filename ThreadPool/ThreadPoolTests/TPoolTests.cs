@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace ThreadPool.Tests
 {
@@ -8,21 +10,17 @@ namespace ThreadPool.Tests
     {
         private TPool pool;
 
-        [TestInitialize]
-        public void Initialize()
-        {
-            pool = new TPool(10);
-        }
-
         [TestMethod]
         public void ThreadNumber()
         {
+            pool = new TPool(10);
             Assert.AreEqual(10, pool.ThreadNumber);
         }
 
         [TestMethod]
         public void CompletingTask()
         {
+            pool = new TPool(1);
             var task = pool.Add(() => 2 * 2);
             Assert.AreEqual(4, task.Result);
             Assert.IsTrue(task.IsCompleted);
@@ -32,7 +30,7 @@ namespace ThreadPool.Tests
         [TestMethod]
         public void OneThreadSeveralTasksTest()
         {
-            var pool = new TPool(1);
+            pool = new TPool(1);
             var task1 = pool.Add(() => 2 + 3);
             var task2 = pool.Add(() => 8 * 8);
             var task3 = pool.Add(() => "123" + "456");
@@ -49,7 +47,7 @@ namespace ThreadPool.Tests
         [TestMethod]
         public void SeveralThreadsSeveralTasksTest()
         {
-            var pool = new TPool(4);
+            pool = new TPool(4);
             var task1 = pool.Add(() => 2 + 3);
             var task2 = pool.Add(() => 8 * 8);
             var task3 = pool.Add(() => "123" + "456");
@@ -65,10 +63,28 @@ namespace ThreadPool.Tests
         }
 
         [TestMethod]
+        public void TasksWhileShutdownTest()
+        {
+            pool = new TPool(2);
+            var list = new List<IMyTask<int>>();
+            for(int i = 0; i < 5; i++)
+            {
+                list.Add(pool.Add(() =>
+                {
+                    Thread.Sleep(1000);
+                    return 4;
+                }));
+            }
+            pool.Shutdown();
+            Assert.AreEqual(4, list[4].Result);
+            Assert.AreEqual(true, pool.ClosedPool);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TaskAfterShutdownTest()
         {
-            var pool = new TPool(1);
+            pool = new TPool(1);
             pool.Shutdown();
             var task1 = pool.Add(() => 2 + 3);           
         }
