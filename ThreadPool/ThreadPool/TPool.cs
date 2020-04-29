@@ -63,6 +63,12 @@ namespace ThreadPool
             }
         }
 
+        private Action ActionAdd(Action action)
+        {
+            taskQueue.Add(action);
+            return action;
+        }
+
         /// <summary>
         /// MyTask class
         /// </summary>
@@ -71,6 +77,7 @@ namespace ThreadPool
             private TPool pool;
             private object locker = new object();
             private Func<TResult> function;
+            private Queue<Action> local;
             public bool IsCompleted { get; set; }
             public TResult Result { get; private set; }
 
@@ -78,16 +85,22 @@ namespace ThreadPool
             {
                 function = task;
                 pool = threadpool;
+                local = new Queue<Action>();
             }
 
             public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult,TNewResult> func)
             {
                 var task = new MyTask<TNewResult>(() => func(Result), pool);
-                if (IsCompleted)
+                lock (locker)
                 {
-                    return pool.Add(() => func(Result));
+                    if (IsCompleted)
+                    {
+                        return pool.Add(() => func(Result));
+                    }
+                    local.Enqueue(task.Calculate);
+                    return task;
                 }
-                return task;
+                
             }
 
             public void Calculate()
@@ -97,6 +110,10 @@ namespace ThreadPool
                 {
                     IsCompleted = true;
                     function = null;
+                    while (local.Count != 0)
+                    {
+                        pool.ActionAdd(local.Dequeue());
+                    }
                 }
             }
         }
