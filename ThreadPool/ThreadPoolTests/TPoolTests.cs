@@ -29,10 +29,44 @@ namespace ThreadPool.Tests
         public void CompletingTask()
         {
             var task = pool.Add(() => 2 * 2);
-            pool.Shutdown();
             Assert.AreEqual(4, task.Result);
             Assert.IsTrue(task.IsCompleted);
 
+        }
+
+        [TestMethod]
+        public void OneThreadSeveralTasksTest()
+        {
+            var pool = new TPool(1);
+            var task1 = pool.Add(() => 2 + 3);
+            var task2 = pool.Add(() => 8 * 8);
+            var task3 = pool.Add(() => "123" + "456");
+
+            Assert.AreEqual(5, task1.Result);
+            Assert.AreEqual(64, task2.Result);
+            Assert.AreEqual("123456", task3.Result);
+
+            Assert.IsTrue(task1.IsCompleted);
+            Assert.IsTrue(task2.IsCompleted);
+            Assert.IsTrue(task3.IsCompleted);
+        }
+
+        [TestMethod]
+        public void SeveralThreadsSeveralTasksTest()
+        {
+            var pool = new TPool(4);
+            var task1 = pool.Add(() => 2 + 3);
+            var task2 = pool.Add(() => 8 * 8);
+            var task3 = pool.Add(() => "123" + "456");
+            pool.Shutdown();
+
+            Assert.AreEqual(5, task1.Result);
+            Assert.AreEqual(64, task2.Result);
+            Assert.AreEqual("123456", task3.Result);
+
+            Assert.IsTrue(task1.IsCompleted);
+            Assert.IsTrue(task2.IsCompleted);
+            Assert.IsTrue(task3.IsCompleted);
         }
     }
 }

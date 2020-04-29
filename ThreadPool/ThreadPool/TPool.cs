@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ThreadPool
@@ -16,7 +13,9 @@ namespace ThreadPool
         public int ThreadNumber { get; }
         private BlockingCollection<Action> taskQueue = new BlockingCollection<Action>();
         private CancellationTokenSource token = new CancellationTokenSource();
-        
+        private int FinishedThreads = 0;
+        private object locker = new object();
+
         public TPool(int numberThreads)
         {
             ThreadNumber = numberThreads;
@@ -29,21 +28,37 @@ namespace ThreadPool
         public void Shutdown()
         {
             token.Cancel();
-            taskQueue.CompleteAdding();
+            taskQueue?.CompleteAdding();
+            taskQueue = null;
         }
+
+        /// <summary>
+        /// true if all threads have been closed
+        /// </summary>
+        public bool ClosedPoll => ThreadNumber == FinishedThreads;
 
         /// <summary>
         /// Adding task to ThreadPool queue
         /// </summary>
         public IMyTask<TResult> Add<TResult>(Func<TResult> func)
         {
-            if (!token.Token.IsCancellationRequested)
+            lock (locker)
             {
-                var task = new MyTask<TResult>(func, this);
-                taskQueue.Add(task.Calculate);
-                return task;
+                if (token.Token.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException();
+                }
+                try
+                {
+                    var task = new MyTask<TResult>(func, this);
+                    taskQueue.Add(task.Calculate);
+                    return task;
+                }
+                catch
+                {
+                    throw new InvalidOperationException();
+                }
             }
-            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -57,7 +72,11 @@ namespace ThreadPool
                 {
                     while (true)
                     {
-                        taskQueue.Take().Invoke();
+                        if (token.IsCancellationRequested)
+                        {
+                            Interlocked.Increment(ref FinishedThreads);
+                        }
+                        taskQueue?.Take().Invoke();
                     }
                 }).Start();
             }
