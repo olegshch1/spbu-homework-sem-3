@@ -26,11 +26,8 @@ namespace ThreadPool
         /// Stopping threadpool work
         /// </summary>
         public void Shutdown()
-        {
-            lock (locker)
-            {
-                token.Cancel();
-            }
+        {            
+            token.Cancel();            
             taskQueue?.CompleteAdding();            
             taskQueue = null;            
         }

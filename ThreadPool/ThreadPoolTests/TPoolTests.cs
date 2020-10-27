@@ -40,15 +40,7 @@ namespace ThreadPool.Tests
             Assert.IsTrue(task2.IsCompleted);
             Assert.IsTrue(task3.IsCompleted);
         }
-
-
-        [TestMethod]
-        public void ClosingPool()
-        {
-            var pool = new TPool(1);
-            pool.Shutdown();
-            Assert.IsTrue(pool.ClosedPool);
-        }
+        
 
         [TestMethod]
         public void UnexistingResultTest()
