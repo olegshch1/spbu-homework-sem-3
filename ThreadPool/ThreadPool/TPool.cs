@@ -51,7 +51,7 @@ namespace ThreadPool
             {                    
                 taskQueue.Add(task.Calculate, token.Token);                    
             }
-            catch (Exception exception) when (exception is InvalidOperationException)
+            catch 
             {
                 throw new InvalidOperationException();
             }
@@ -98,7 +98,7 @@ namespace ThreadPool
             private Queue<Action> local;
             private TResult result;
             private AggregateException exception;
-            public bool IsCompleted { get; set; }
+            public bool IsCompleted { get; set; } = false;
             public TResult Result
             {
                 get
