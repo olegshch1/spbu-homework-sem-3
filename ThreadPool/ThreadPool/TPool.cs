@@ -15,6 +15,7 @@ namespace ThreadPool
         private CancellationTokenSource token = new CancellationTokenSource();
         private int finishedThreads = 0;
         private object locker = new object();
+        private AutoResetEvent shutdownSignal = new AutoResetEvent(false);
 
         public TPool(int numberThreads)
         {
@@ -30,12 +31,12 @@ namespace ThreadPool
             token.Cancel();
             lock (locker)
             {
+                taskQueue.CompleteAdding();
                 while (!ClosedPool)
                 {
-                    taskQueue.CompleteAdding();            
+                    shutdownSignal.WaitOne();        
                 }
-            }
-            taskQueue = null;            
+            }            
         }
 
         /// <summary>
@@ -80,8 +81,9 @@ namespace ThreadPool
                             Interlocked.Increment(ref finishedThreads);
                             break;
                         }
-                        taskQueue?.Take().Invoke();
+                        taskQueue.Take().Invoke();
                     }
+                    shutdownSignal.Set();
                 }).Start();
             }
         }

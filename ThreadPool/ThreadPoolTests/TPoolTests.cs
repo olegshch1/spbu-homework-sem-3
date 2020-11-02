@@ -10,7 +10,6 @@ namespace ThreadPool.Tests
     {
         private TPool pool;
 
-
         [TestMethod]
         public void CompletingTask()
         {
@@ -20,8 +19,6 @@ namespace ThreadPool.Tests
             Assert.AreEqual(4, task.Result);
             Assert.IsTrue(task.IsCompleted);
             Assert.IsTrue(pool.ClosedPool);
-
-
         }
 
         [TestMethod]
@@ -31,11 +28,9 @@ namespace ThreadPool.Tests
             var task1 = pool.Add(() => 2 + 3);
             var task2 = pool.Add(() => 8 * 8);
             var task3 = pool.Add(() => "123" + "456");
-
             Assert.AreEqual(5, task1.Result);
             Assert.AreEqual(64, task2.Result);
             Assert.AreEqual("123456", task3.Result);
-
             Assert.IsTrue(task1.IsCompleted);
             Assert.IsTrue(task2.IsCompleted);
             Assert.IsTrue(task3.IsCompleted);
@@ -66,11 +61,6 @@ namespace ThreadPool.Tests
             var task1 = pool.Add(() => 2 + 3);           
         }
 
-
-        //////////////////////////other tests
-        ///
-
-
         [TestMethod]
         public void NumberOfThreads()
         {
@@ -93,11 +83,10 @@ namespace ThreadPool.Tests
 
         [TestMethod]
         [ExpectedException(typeof(System.InvalidOperationException))]
-        public void NotAddToThreadPoolkAfterShutdown()
+        public void NotAddToThreadPoolAfterShutdown()
         {
             var threadPool = new TPool(5);
             threadPool.Shutdown();
-
             threadPool.Add(() => 1);
         }
 
@@ -119,7 +108,6 @@ namespace ThreadPool.Tests
 
             Thread.Sleep(100);
             threadPool.Shutdown();
-
             Thread.Sleep(400);
             Assert.AreEqual(threadPool.ThreadNumber, numberOfEvaluatedTasks);
         }
@@ -154,7 +142,6 @@ namespace ThreadPool.Tests
         {
             var threadPool = new TPool(5);
             var flag = false;
-
             var task = threadPool.Add(() =>
             {
                 flag = false;
@@ -166,7 +153,6 @@ namespace ThreadPool.Tests
                 flag = true;
                 return x;
             });
-
             Thread.Sleep(200);
             Assert.IsTrue(flag);
         }
@@ -196,16 +182,14 @@ namespace ThreadPool.Tests
         {
             var threadPool = new TPool(5);
             var task = threadPool.Add(() => 5);
-
             var list = new List<int> { 1, 2, 3, 4, 5 };
             for (var i = 0; i < list.Count; ++i)
             {
-                var local = i;
                 task.ContinueWith((x) =>
                 {
-                    list[local] += x;
+                    list[i] += x;
 
-                    return list[local];
+                    return list[i];
                 });
             }
             Thread.Sleep(200);
@@ -214,8 +198,25 @@ namespace ThreadPool.Tests
                 Assert.AreEqual(i + 6, list[i]);
             }
 
+            threadPool.Shutdown();
+        }
+
+        [TestMethod]
+        public void ParallelTest()
+        {
+            var threadPool = new TPool(15);
+            var result = 0;
+            for (var i = 0; i < 15; ++i)
+            {
+                threadPool.Add(() =>
+                {
+                    ++result;
+                    return 0;
+                });
+            }
 
             threadPool.Shutdown();
+            Assert.AreEqual(15, result);
         }
     }
 }
