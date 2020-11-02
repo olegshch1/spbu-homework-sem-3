@@ -74,15 +74,11 @@ namespace ThreadPool
             {
                 new Thread(()=> 
                 {
-                    while (true)
-                    {                       
-                        if (token.Token.IsCancellationRequested)
-                        {
-                            Interlocked.Increment(ref finishedThreads);
-                            break;
-                        }
+                    while (!token.Token.IsCancellationRequested)
+                    {                                               
                         taskQueue.Take().Invoke();
                     }
+                    Interlocked.Increment(ref finishedThreads);
                     shutdownSignal.Set();
                 }).Start();
             }
