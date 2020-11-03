@@ -31,11 +31,12 @@ namespace ThreadPool
             token.Cancel();
             lock (locker)
             {
-                taskQueue.CompleteAdding();
+                taskQueue?.CompleteAdding();
                 while (!ClosedPool)
                 {
                     shutdownSignal.WaitOne();        
                 }
+                taskQueue = null;
             }            
         }
 
@@ -74,12 +75,20 @@ namespace ThreadPool
             {
                 new Thread(()=> 
                 {
-                    while (!token.Token.IsCancellationRequested)
-                    {                                               
-                        taskQueue.Take().Invoke();
-                    }
-                    Interlocked.Increment(ref finishedThreads);
-                    shutdownSignal.Set();
+                    while (true)
+                    {
+                        if (token.Token.IsCancellationRequested)
+                        {
+                            Interlocked.Increment(ref finishedThreads);
+                            shutdownSignal.Set();
+                            break;
+                        }
+                        if(taskQueue.TryTake(out Action action))
+                        {
+                            action.Invoke();
+                        }
+                        //taskQueue?.Take().Invoke();
+                    }                                                                                                                          
                 }).Start();
             }
         }

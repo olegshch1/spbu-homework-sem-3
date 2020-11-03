@@ -183,7 +183,7 @@ namespace ThreadPool.Tests
             var threadPool = new TPool(5);
             var task = threadPool.Add(() => 5);
             var list = new List<int> { 1, 2, 3, 4, 5 };
-            for (var i = 0; i < list.Count; ++i)
+            for (var i = 0; i < list.Count; i++)
             {
                 task.ContinueWith((x) =>
                 {
@@ -193,7 +193,7 @@ namespace ThreadPool.Tests
                 });
             }
             Thread.Sleep(200);
-            for (var i = 0; i < 5; ++i)
+            for (var i = 0; i < 5; i++)
             {
                 Assert.AreEqual(i + 6, list[i]);
             }
@@ -206,11 +206,11 @@ namespace ThreadPool.Tests
         {
             var threadPool = new TPool(15);
             var result = 0;
-            for (var i = 0; i < 15; ++i)
+            for (var i = 0; i < 15; i++)
             {
                 threadPool.Add(() =>
                 {
-                    ++result;
+                    result++;
                     return 0;
                 });
             }
