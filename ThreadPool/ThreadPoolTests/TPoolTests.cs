@@ -188,16 +188,11 @@ namespace ThreadPool.Tests
                 task.ContinueWith((x) =>
                 {
                     list[i] += x;
-
+                    Assert.AreEqual(i + 6, list[i]);
                     return list[i];
                 });
             }
             Thread.Sleep(200);
-            for (var i = 0; i < 5; i++)
-            {
-                Assert.AreEqual(i + 6, list[i]);
-            }
-
             threadPool.Shutdown();
         }
 
