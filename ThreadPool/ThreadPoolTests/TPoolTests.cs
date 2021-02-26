@@ -36,7 +36,6 @@ namespace ThreadPool.Tests
             Assert.IsTrue(task3.IsCompleted);
         }
         
-
         [TestMethod]
         public void UnexistingResultTest()
         {
@@ -119,7 +118,6 @@ namespace ThreadPool.Tests
             var threadPool = new TPool(5);
             var result = threadPool.Add<object>(() => throw new NullReferenceException()).Result;
         }
-
 
         [TestMethod]
         public void ContinueWithWork()
