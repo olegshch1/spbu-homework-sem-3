@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace MyNUnit
 {
@@ -10,11 +7,25 @@ namespace MyNUnit
     {
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("No path");
+                return;
+            }
+
             var path = args[0];
-            Console.WriteLine("Execution started");
-            MyNUnit.Runner.Run(path);
-            MyNUnit.Runner.Print();
-            Console.WriteLine("Execution finished");
+
+            try
+            {
+                Console.WriteLine("Execution started");
+                MyNUnit.Runner.Run(path);
+                MyNUnit.Runner.Print();
+                Console.WriteLine("Execution finished");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine("No directory");
+            }
         }
     }
 }

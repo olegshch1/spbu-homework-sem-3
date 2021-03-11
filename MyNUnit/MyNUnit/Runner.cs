@@ -1,17 +1,15 @@
-﻿using System;
+﻿using Attributes;
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using MyNUnit.Attributes;
 
 namespace MyNUnit
 {
-        public static class Runner
+    public static class Runner
     {
         public static BlockingCollection<TestInfo> TestInformation { get; private set; }
 
@@ -30,7 +28,7 @@ namespace MyNUnit
         /// </summary>
         public static void Print()
         {
-            foreach(var test in TestInformation)
+            foreach (var test in TestInformation)
             {
                 Console.WriteLine($"{test.Assembly}.{test.Name} " +
                     $"{(test.Ignore == null ? ((test.IsPassed ? "Passed" : "Failed") + ". Time:" + test.Time.ToString()) : " ignored due" + test.Ignore)}");
@@ -83,7 +81,7 @@ namespace MyNUnit
 
             var attributes = Attribute.GetCustomAttribute(meti, typeof(TestAttribute)) as TestAttribute;
 
-            if(attributes.Ignore != null)
+            if (attributes.Ignore != null)
             {
                 TestInformation.Add(new TestInfo(meti.Name, meti.DeclaringType.FullName, 0, false, ignore: attributes.Ignore));
                 return;
@@ -127,13 +125,11 @@ namespace MyNUnit
         private static void ExecuteOtherMethod(MethodInfo meti, object obj, Type attribute)
         {
             CheckMethod(meti);
-
             if ((attribute == typeof(BeforeClassAttribute) || attribute == typeof(AfterClassAttribute)) && !meti.IsStatic)
             {
                 throw new InvalidOperationException($"{meti.Name} is not static");
             }
-
-                meti.Invoke(obj, null);
+            meti.Invoke(obj, null);
         }
 
         /// <summary>

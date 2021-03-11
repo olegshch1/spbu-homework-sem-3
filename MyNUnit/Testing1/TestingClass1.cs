@@ -1,9 +1,4 @@
-﻿using MyNUnit.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Attributes;
 
 namespace Testing1
 {
@@ -14,7 +9,7 @@ namespace Testing1
         [Test]
         public void Incrementing()
         {
-            count++;
+            ++count;
         }
     }
 }

@@ -64,12 +64,28 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyNUnit\MyNUnit.csproj">
-      <Project>{CA53F04A-61D4-4284-AC6A-FCD6FC150B69}</Project>
+      <Project>{ca53f04a-61d4-4284-ac6a-fcd6fc150b69}</Project>
       <Name>MyNUnit</Name>
     </ProjectReference>
     <ProjectReference Include="..\Testing1\Testing1.csproj">
       <Project>{3a9f999d-2849-4069-8b64-0da18ccd66b0}</Project>
       <Name>Testing1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Testing2\Testing2.csproj">
+      <Project>{ada9cbc9-9921-483f-9db7-cdb36c299cf8}</Project>
+      <Name>Testing2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Testing3\Testing3.csproj">
+      <Project>{9ccea463-9e10-400c-a384-f500a7d5096e}</Project>
+      <Name>Testing3</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Testing4\Testing4.csproj">
+      <Project>{d14ebd17-850f-4a82-942f-ea1bb99685a5}</Project>
+      <Name>Testing4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Testing5\Testing5.csproj">
+      <Project>{24f81b7c-8f80-4d84-a304-8ac28597f3d2}</Project>
+      <Name>Testing5</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
