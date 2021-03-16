@@ -83,7 +83,7 @@ namespace ThreadPool
                             shutdownSignal.Set();
                             break;
                         }
-                        if(taskQueue.TryTake(out Action action))
+                        if (taskQueue.TryTake(out Action action))
                         {
                             action.Invoke();
                         }
@@ -153,9 +153,9 @@ namespace ThreadPool
                 {
                     result = function();
                 }
-                catch (Exception calcexception)
+                catch (Exception calcException)
                 {
-                    exception = new AggregateException(calcexception);
+                    exception = new AggregateException(calcException);
                 }
                 finally
                 {
