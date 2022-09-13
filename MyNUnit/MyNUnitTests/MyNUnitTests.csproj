@@ -63,6 +63,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Attributes\Attributes.csproj">
+      <Project>{8ab1a966-e7cb-4b42-8584-bc89682167ec}</Project>
+      <Name>Attributes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyNUnit\MyNUnit.csproj">
       <Project>{ca53f04a-61d4-4284-ac6a-fcd6fc150b69}</Project>
       <Name>MyNUnit</Name>

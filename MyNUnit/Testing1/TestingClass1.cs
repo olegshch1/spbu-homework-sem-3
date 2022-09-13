@@ -9,7 +9,7 @@ namespace Testing1
         [Test]
         public void Incrementing()
         {
-            ++count;
+            count++;
         }
     }
 }
