@@ -64,6 +64,7 @@ namespace MyNUnit
                     || attribute == typeof(BeforeAttribute) || attribute == typeof(AfterAttribute):
                     RunMethod = meti => ExecuteOtherMethod(meti, obj, attribute);
                     break;
+
                 default:
                     throw new InvalidProgramException("Unpredictable attribute");
             }
@@ -75,29 +76,33 @@ namespace MyNUnit
         /// <summary>
         /// executions test method
         /// </summary>
-        private static void ExecuteTestMethod(MethodInfo meti)
+        private static void ExecuteTestMethod(MethodInfo methodInfo)
         {
-            CheckMethod(meti);
+            CheckMethod(methodInfo);
 
-            var attributes = Attribute.GetCustomAttribute(meti, typeof(TestAttribute)) as TestAttribute;
+            var attributes = Attribute.GetCustomAttribute(methodInfo, typeof(TestAttribute)) as TestAttribute;
 
             if (attributes.Ignore != null)
             {
-                TestInformation.Add(new TestInfo(meti.Name, meti.DeclaringType.FullName, 0, false, ignore: attributes.Ignore));
+                TestInformation.Add(new TestInfo(methodInfo.Name, methodInfo.DeclaringType.FullName, 0, false, ignore: attributes.Ignore));
                 return;
             }
 
-            var constructor = meti.DeclaringType.GetConstructor(Type.EmptyTypes);
+            var constructor = methodInfo.DeclaringType.GetConstructor(Type.EmptyTypes);
+            if (constructor == null)
+            {
+                throw new InvalidOperationException($"Test class {methodInfo.DeclaringType.Name} should have parameterless constructor");
+            }
 
             var obj = constructor.Invoke(null);
 
-            ExecuteAllWith<BeforeAttribute>(meti.DeclaringType, obj);
+            ExecuteAllWith<BeforeAttribute>(methodInfo.DeclaringType, obj);
 
             var clock = Stopwatch.StartNew();
             bool isCrashed = true;
             try
             {
-                meti.Invoke(obj, null);
+                methodInfo.Invoke(obj, null);
                 if (attributes.Expected == null)
                 {
                     isCrashed = false;
@@ -113,23 +118,23 @@ namespace MyNUnit
             finally
             {
                 clock.Stop();
-                TestInformation.Add(new TestInfo(meti.Name, meti.DeclaringType.FullName, clock.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
+                TestInformation.Add(new TestInfo(methodInfo.Name, methodInfo.DeclaringType.FullName, clock.ElapsedMilliseconds, !isCrashed, attributes.Expected, attributes.Ignore));
             }
 
-            ExecuteAllWith<AfterAttribute>(meti.DeclaringType, obj);
+            ExecuteAllWith<AfterAttribute>(methodInfo.DeclaringType, obj);
         }
 
         /// <summary>
         /// executions non-test method
         /// </summary>
-        private static void ExecuteOtherMethod(MethodInfo meti, object obj, Type attribute)
+        private static void ExecuteOtherMethod(MethodInfo methodInfo, object obj, Type attribute)
         {
-            CheckMethod(meti);
-            if ((attribute == typeof(BeforeClassAttribute) || attribute == typeof(AfterClassAttribute)) && !meti.IsStatic)
+            CheckMethod(methodInfo);
+            if ((attribute == typeof(BeforeClassAttribute) || attribute == typeof(AfterClassAttribute)) && !methodInfo.IsStatic)
             {
-                throw new InvalidOperationException($"{meti.Name} is not static");
+                throw new InvalidOperationException($"{methodInfo.Name} is not static");
             }
-            meti.Invoke(obj, null);
+            methodInfo.Invoke(obj, null);
         }
 
         /// <summary>

@@ -42,6 +42,7 @@ namespace MyNUnit
             Name = name;
             Time = time;
             IsPassed = isPassed;
+            Assembly = assembly;
             Expected = expected;
             Ignore = ignore;
         }
