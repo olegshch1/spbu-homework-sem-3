@@ -195,7 +195,7 @@ namespace ThreadPool.Tests
         }
 
         [TestMethod]
-        public void ParallelTest()
+        public void ManyTasksForOneResult()
         {
             var threadPool = new TPool(15);
             var result = 0;

@@ -6,7 +6,7 @@ using System.Threading;
 namespace ThreadPool
 {
     /// <summary>
-    /// MyThreadPool class
+    /// My ThreadPool class called TPool
     /// </summary>
     public class TPool
     {
@@ -73,7 +73,7 @@ namespace ThreadPool
         {
             for (int i = 0; i < number; ++i)
             {
-                new Thread(()=> 
+                new Thread(() => 
                 {
                     while (true)
                     {

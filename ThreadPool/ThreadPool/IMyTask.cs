@@ -18,7 +18,7 @@ namespace ThreadPool
         bool IsCompleted { get; }
 
         /// <summary>
-        /// rresult of task
+        /// result of task
         /// </summary>
         TResult Result { get; }
 
