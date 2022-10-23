@@ -166,7 +166,14 @@ namespace ThreadPool
                         flag.Set();
                         while (local.Count != 0)
                         {
-                            pool.ActionAdd(local.Dequeue());
+                            if (pool.taskQueue != null)
+                            {
+                                pool.ActionAdd(local.Dequeue());
+                            }
+                            else
+                            {
+                                local.Clear();
+                            }
                         }
                     }
                 }
