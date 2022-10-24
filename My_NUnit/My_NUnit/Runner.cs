@@ -21,7 +21,7 @@ namespace My_NUnit
         /// </summary>
         public static void Run(string path)
         {
-            var types = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).Select(Assembly.LoadFrom).AsParallel().ToHashSet().SelectMany(a => a.ExportedTypes);
+            var types = Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories).AsParallel().Select(Assembly.LoadFrom).ToHashSet().SelectMany(a => a.ExportedTypes);
             TestInformation = new BlockingCollection<TestInfo>();
             Parallel.ForEach(types, TryAll);
         }
