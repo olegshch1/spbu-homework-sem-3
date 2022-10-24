@@ -2,6 +2,9 @@
 
 namespace My_NUnit
 {
+    /// <summary>
+    /// class provides info about tests
+    /// </summary>
     public class TestInfo
     {
         /// <summary>

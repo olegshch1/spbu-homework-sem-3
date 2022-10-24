@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace My_NUnit
 {
+    /// <summary>
+    /// executing tests class
+    /// </summary>
     public static class Runner
     {
         public static BlockingCollection<TestInfo> TestInformation { get; private set; }
@@ -50,7 +53,7 @@ namespace My_NUnit
         /// </summary>
         private static void ExecuteAllWith<AttributeType>(Type type, object obj = null) where AttributeType : Attribute
         {
-            var methodsWithAttribute = type.GetTypeInfo().DeclaredMethods.Where(meti => Attribute.IsDefined(meti, typeof(AttributeType)));
+            var methodsWithAttribute = type.GetTypeInfo().DeclaredMethods.Where(metinfo => Attribute.IsDefined(metinfo, typeof(AttributeType)));
 
             Action<MethodInfo> RunMethod;
 
