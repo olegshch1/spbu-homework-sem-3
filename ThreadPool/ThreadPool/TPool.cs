@@ -16,6 +16,7 @@ namespace ThreadPool
         private int finishedThreads = 0;
         private object locker = new object();
         private AutoResetEvent shutdownSignal = new AutoResetEvent(false);
+        private AutoResetEvent taskSignal = new AutoResetEvent(false);
 
         public TPool(int numberThreads)
         {
@@ -34,6 +35,7 @@ namespace ThreadPool
                 taskQueue?.CompleteAdding();
                 while (!ClosedPool)
                 {
+                    taskSignal.Set();
                     shutdownSignal.WaitOne();        
                 }
                 taskQueue = null;
@@ -57,7 +59,8 @@ namespace ThreadPool
             var task = new MyTask<TResult>(func, this);
             try
             {                    
-                taskQueue.Add(task.Calculate, token.Token);                    
+                taskQueue.Add(task.Calculate, token.Token);
+                taskSignal.Set();
             }
             catch 
             {
@@ -85,7 +88,12 @@ namespace ThreadPool
                         }
                         if (taskQueue.TryTake(out Action action))
                         {
+                            taskSignal.Set();
                             action.Invoke();
+                        }
+                        else
+                        {
+                            taskSignal.WaitOne();
                         }
                         //taskQueue?.Take().Invoke();
                     }                                                                                                                          
@@ -166,14 +174,18 @@ namespace ThreadPool
                         flag.Set();
                         while (local.Count != 0)
                         {
-                            if (pool.taskQueue != null)
+                            lock (pool.locker)
                             {
-                                pool.ActionAdd(local.Dequeue());
+                                if (pool.taskQueue != null)
+                                {
+                                    pool.ActionAdd(local.Dequeue());
+                                }
+                                else
+                                {
+                                    local.Clear();
+                                }
                             }
-                            else
-                            {
-                                local.Clear();
-                            }
+                            
                         }
                     }
                 }
